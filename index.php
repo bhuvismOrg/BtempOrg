@@ -27,6 +27,7 @@
   <link href="indexStyles.css" rel="stylesheet">
   <script>
   function loader(){
+      var subtsask = 82
     var file = document.getElementById('file-upload').value
     var room = document.getElementById('roomid').value
     if(file && room){
