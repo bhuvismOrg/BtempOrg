@@ -20,7 +20,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Merge PR to UAT
+      - name: Sync Branches
+        run: |
+          git checkout ${{ env.issueType - env.issueKey }}
+          git pull origin uat
+          git push origin ${{ env.issueType - env.issueKey }}
+        if: ${{ env.isBlocksUI == 'true' }}
+        
+      - name: Merge PR to Base
         uses: actions/github-script@v4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
