@@ -22,9 +22,9 @@ jobs:
 
       - name: Sync Branches
         run: |
-          git checkout ${{ env.issueType - env.issueKey }}
+          git checkout ${{env.issueType}}-{{env.issueKey}}
           git pull origin uat
-          git push origin ${{ env.issueType - env.issueKey }}
+          git push origin ${{env.issueType}}-{{env.issueKey}}
         if: ${{ env.isBlocksUI == 'true' }}
         
       - name: Merge PR to Base
