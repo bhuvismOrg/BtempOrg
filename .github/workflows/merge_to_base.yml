@@ -11,8 +11,7 @@ env:
   issueKey: ${{ github.event.client_payload.issueKey }}
   issueType: ${{ github.event.client_payload.issueType }}
   ticketStatus: ${{ github.event.client_payload.ticketStatus }}
-  isBlocksUI: ${{ github.event.client_payload.isBlocksUI }}
-
+  
 jobs:
   merge:
     runs-on: ubuntu-latest
@@ -20,13 +19,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Sync Branches
-        run: |
-          git checkout ${{env.issueType}}-${{env.issueKey}}
-          git pull origin uat
-          git push origin ${{env.issueType}}-${{env.issueKey}}
-        if: ${{ env.isBlocksUI == 'true' }}
         
       - name: Merge PR to Base
         uses: actions/github-script@v4
