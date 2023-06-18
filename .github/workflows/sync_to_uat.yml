@@ -1,0 +1,19 @@
+name: Sync Branch to UAT
+
+on:
+  repository_dispatch:
+    types: [sync_to_uat]
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Sync Branches
+        run: |
+          git checkout temp-dev-branch
+          git pull origin uat
+          git push origin temp-dev-branch
