@@ -11,6 +11,7 @@ env:
   issueKey: ${{ github.event.client_payload.issueKey }}
   issueType: ${{ github.event.client_payload.issueType }}
   ticketStatus: ${{ github.event.client_payload.ticketStatus }}
+  isBlocksUI: ${{ github.event.client_payload.isBlocksUI }}
 
 jobs:
   merge:
