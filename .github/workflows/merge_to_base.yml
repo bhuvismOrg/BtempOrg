@@ -65,8 +65,8 @@ jobs:
         
       - name: Delete branch
         run: |
-          if echo "${{ env.label }}" | grep -q "Blocks_UI"; then
-            git push origin -d dev-branch-${{env.issueType}}-${{env.issueKey}}
-          else
-            git push origin -d ${{env.issueType}}-${{env.issueKey}}
+          BRANCH_NAME=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls/${{ env.prNo }}" \
+            | jq -r '.head.ref')
+          git push origin -d $BRANCH_NAME
         if: ${{ env.issueType == 'Bug' && env.ticketStatus != 'SoleBug' || env.issueType == 'Subtask' }}
