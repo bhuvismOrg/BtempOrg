@@ -23,7 +23,7 @@ jobs:
           
       - name: Check Substring
         run: |
-          ${{ if contains(${{env.branch_name}}, 'dev-branch') }}
+          ${{ if contains('${{env.branch_name}}', 'dev-branch') }}
             SECOND_PART=$(echo "${{env.branch_name}}" | cut -d'-' -f3-)
             echo "issue_key=$SECOND_PART" >> "$GITHUB_ENV"
           ${{ else }}
