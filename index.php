@@ -23,7 +23,8 @@
   <link href="indexStyles.css" rel="stylesheet">
   <script>
   function loader(){
-      var subtask1 = 98
+      var subtask1 = 104-3
+      var dependency_served = true
     var file = document.getElementById('file-upload').value
     var room = document.getElementById('roomid').value
     if(file && room){
