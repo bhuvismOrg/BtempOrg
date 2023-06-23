@@ -64,5 +64,8 @@ jobs:
         
       - name: Delete branch
         run: |
-          git push origin -d ${{env.issueType}}-${{env.issueKey}}
+          if echo "${{ env.label }}" | grep -q "Blocks_UI"; then
+            git push origin -d dev-branch-${{env.issueType}}-${{env.issueKey}}
+          else
+            git push origin -d ${{env.issueType}}-${{env.issueKey}}
         if: ${{ env.issueType == 'Bug' && env.ticketStatus != 'SoleBug' || env.issueType == 'Subtask' }}
