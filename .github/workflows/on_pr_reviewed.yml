@@ -60,8 +60,7 @@ jobs:
                   "https://api.github.com/repos/bhuvismOrg/$REPO2/pulls/$value/reviews" | json_pp)
               fi
               if [[ "$PR_API_RES" != '[]' ]]; then
-                json_res=$(echo "$PR_API_RES" | jq -R .)
-                last_ele=$(echo "$json_res" | jq '.[-1]')
+                last_ele=$(echo "$PR_API_RES" | jq '.[-1]')
                 echo "Response: $last_ele"
               fi
             fi
