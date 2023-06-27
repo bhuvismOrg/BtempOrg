@@ -53,12 +53,12 @@ jobs:
               if [[ "$value" == "$PR1" ]]; then
                 echo "$REPO1"
                 PR_API_RES=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                  "https://api.github.com/repos/bhuvismOrg/BtempOrg/pulls/54/reviews")
+                  "https://api.github.com/repos/bhuvismOrg/$REPO1/pulls/$value/reviews")
               else
                 echo "$REPO2"
               fi
               echo "PR Api Res: $PR_API_RES"
-              if [[ ${PR_API_RES[0]} == '\n' ]]; then
+              if [[ ${PR_API_RES[0]} == '' ]]; then
                 echo "array is empty ${#PR_API_RES[@]}"
               else
                 echo "array is not empty ${#PR_API_RES[@]} ${PR_API_RES[0]}"
