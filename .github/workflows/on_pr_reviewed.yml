@@ -61,7 +61,7 @@ jobs:
               fi
               if [[ "$PR_API_RES" != '[]' ]]; then
                 json_res=$(echo "$PR_API_RES" | jq -R .)
-                last_ele=$(jq '.[-1]' "$json_res")
+                last_ele=$(echo "$json_res" | jq '.[-1]')
                 echo "Response: $last_ele"
               fi
             fi
