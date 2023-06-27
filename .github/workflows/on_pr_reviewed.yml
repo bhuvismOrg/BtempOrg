@@ -50,7 +50,7 @@ jobs:
             if [[ "$value" != null ]]; then
               IS_ALL_PRS_APPROVED="true"
               echo "Processing value: $value, $PR1"
-              if [[$value == $PR1]]; then
+              if [["$value" == $PR1]]; then
                 echo "PR, Repo: $value,$REPO1"
                 PR_State_Response=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
                 "https://api.github.com/repos/$REPO1/pulls/$value/reviews")
