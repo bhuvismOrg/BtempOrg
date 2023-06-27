@@ -48,7 +48,7 @@ jobs:
           PRS_ARRAY=("$PR1" "$PR2")
           for value in "${PRS_ARRAY[@]}"; do
             if [[ "$value" != null ]]; then
-              IS_ALL_PRS_APPROVED="true"
+              IS_ALL_PRS_APPROVED="false"
               echo "Processing value: $value, $PR1,$PR2"
               if [[ "$value" == "$PR1" ]]; then
                 echo "$REPO1"
@@ -59,9 +59,8 @@ jobs:
                 PR_API_RES=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
                   "https://api.github.com/repos/bhuvismOrg/$REPO2/pulls/$value/reviews" | json_pp)
               fi
-              echo "PR Api Res: $PR_API_RES"
               if [[ "$PR_API_RES" != '[]' ]]; then
-                echo "Response: $PR_API_RES"
+                echo "Response: ${#PR_API_RES[@]}"
               fi
             fi
           done
