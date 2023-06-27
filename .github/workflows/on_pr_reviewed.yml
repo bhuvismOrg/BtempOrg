@@ -52,10 +52,10 @@ jobs:
               echo "Processing value: $value"
               if [["$value" == "$PR1"]]; then
                 PR_State_Response=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                "https://api.github.com/repos/${REPO1}/pulls/$value/reviews")
+                "https://api.github.com/repos/$REPO1/pulls/$value/reviews")
               else
                 PR_State_Response=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                "https://api.github.com/repos/${REPO2}/pulls/$value/reviews")
+                "https://api.github.com/repos/$REPO2/pulls/$value/reviews")
               echo "PR Api Res: $PR_State_Response"
               if [[ ${#PR_State_Response[@]} -eq 0 ]]; then
                 echo "array is empty"
