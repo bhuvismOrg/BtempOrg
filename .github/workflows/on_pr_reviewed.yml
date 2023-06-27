@@ -56,23 +56,13 @@ jobs:
                   "https://api.github.com/repos/bhuvismOrg/$REPO1/pulls/$value/reviews" | json_pp)
               else
                 echo "$REPO2"
+                PR_API_RES=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                  "https://api.github.com/repos/bhuvismOrg/$REPO2/pulls/$value/reviews" | json_pp)
               fi
               echo "PR Api Res: $PR_API_RES"
-              if [[ "$PR_API_RES" == '[]' ]]; then
-                echo "array is empty ${#PR_API_RES[@]}"
-              else
-                echo "array is not empty ${#PR_API_RES[@]} ${PR_API_RES[0]}"
+              if [[ "$PR_API_RES" != '[]' ]]; then
+                echo "Response: $PR_API_RES"
               fi
-              PR_State = $PR_State.state
-              echo "Before PR State: $PR_State"
-              PR_State=$(echo $PR_State | sed 's/"//g')
-              echo "After PR State: $PR_State"
-              if [[ "$PR_State" == "APPROVED" ]]; then
-                IS_ALL_PRS_APPROVED="true"
-              else
-                IS_ALL_PRS_APPROVED="false"
-              fi
-              echo "All PRs state: $IS_ALL_PRS_APPROVED"
             fi
           done
           echo "is_all_prs_approved=$IS_ALL_PRS_APPROVED" >> "$GITHUB_ENV"
