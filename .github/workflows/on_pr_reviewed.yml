@@ -50,6 +50,11 @@ jobs:
             if [[ "$value" != null ]]; then
               IS_ALL_PRS_APPROVED="true"
               echo "Processing value: $value, $PR1,$PR2"
+              if [[ "$value" == "$PR1" ]]; then
+                echo "$REPO1"
+              else
+                echo "$REPO2"
+              fi
               echo "PR Api Res: $PR_State_Response"
               if [[ ${#PR_State_Response[@]} -eq 0 ]]; then
                 echo "array is empty"
