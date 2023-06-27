@@ -52,6 +52,8 @@ jobs:
               echo "Processing value: $value, $PR1,$PR2"
               if [[ "$value" == "$PR1" ]]; then
                 echo "$REPO1"
+                PR_State_Response=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                "https://api.github.com/repos/$REPO1/pulls/$value/reviews")
               else
                 echo "$REPO2"
               fi
