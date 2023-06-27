@@ -61,7 +61,7 @@ jobs:
               if [[ ${PR_API_RES[0]} == '' ]]; then
                 echo "array is empty ${#PR_API_RES[@]}"
               else
-                echo "array is not empty ${#PR_API_RES[@]}"
+                echo "array is not empty ${#PR_API_RES[@]} ${PR_API_RES[0]}"
               fi
               PR_State = $PR_State.state
               echo "Before PR State: $PR_State"
