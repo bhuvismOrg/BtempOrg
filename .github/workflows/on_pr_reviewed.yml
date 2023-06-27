@@ -42,24 +42,26 @@ jobs:
             -H "Content-Type: application/json" \
             -H "Authorization: Basic $JIRA_API_TOKEN")
           PR1=$(echo "$API_RES" | jq -r '.fields.customfield_10034')
+          REPO1=$(echo "$API_RES" | jq -r '.fields.customfield_10035')
           PR2=$(echo "$API_RES" | jq -r '.fields.customfield_10040')
+          REPO2=$(echo "$API_RES" | jq -r '.fields.customfield_10041')
           PRS_ARRAY=("$PR1" "$PR2")
           for value in "${PRS_ARRAY[@]}"; do
             if [[ "$value" != null ]]; then
-              IS_ALL_PRS_APPROVED="true"
-              echo "Processing value: $value"
-              PR_State=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                "https://api.github.com/repos/${{ github.repository }}/pulls/$value/reviews" \
-                | jq '.[-1].state')
-              echo "Before PR State: $PR_State"
-              PR_State=$(echo $PR_State | sed 's/"//g')
-              echo "After PR State: $PR_State"
-              if [[ "$PR_State" == "APPROVED" ]]; then
-                IS_ALL_PRS_APPROVED="true"
+              IS_ALL_PRS_APPROVED="false"
+              echo "Processing value: $value, $PR1,$PR2"
+              if [[ "$value" == "$PR1" ]]; then
+                echo "$REPO1"
+                PR_API_RES=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                  "https://api.github.com/repos/bhuvismOrg/$REPO1/pulls/$value/reviews" | json_pp)
               else
-                IS_ALL_PRS_APPROVED="false"
+                echo "$REPO2"
+                PR_API_RES=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                  "https://api.github.com/repos/bhuvismOrg/$REPO2/pulls/$value/reviews" | json_pp)
               fi
-              echo "All PRs state: $IS_ALL_PRS_APPROVED"
+              if [[ "$PR_API_RES" != '[]' ]]; then
+                echo "Response: ${#PR_API_RES[@]}"
+              fi
             fi
           done
           echo "is_all_prs_approved=$IS_ALL_PRS_APPROVED" >> "$GITHUB_ENV"
