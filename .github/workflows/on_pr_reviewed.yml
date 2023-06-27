@@ -53,7 +53,7 @@ jobs:
               if [[ "$value" == "$PR1" ]]; then
                 echo "$REPO1"
                 PR_State_Response=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                "https://api.github.com/repos/TestJiraAutomation/pulls/$value/reviews")
+                "https://api.github.com/repos/TestJiraAutomation/pulls/199/reviews")
               else
                 echo "$REPO2"
               fi
