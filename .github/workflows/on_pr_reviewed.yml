@@ -1,197 +1,103 @@
-Skip to content
-bhuvismOrg
-/
-BtempOrg
+name: Update Jira Custom Field - isPRApproved
 
-Type / to search
-Command palette
-Create new...
-Issues
-Pull requests
-You have no unread notifications
-Code
-Issues
-Pull requests
-2
-Actions
-Projects
-Security
-Insights
-Settings
-BreadcrumbsBtempOrg/.github/workflows
-/
-on_pr_reviewed.yml
-in
-Story-JGI-122
+on:
+  pull_request_review:
+    types:
+      - submitted
+jobs:
+  update-jira:
+    runs-on: ubuntu-latest
 
-Edit
-
-Preview
-Indent mode
-
-Spaces
-Indent size
-
-2
-Line wrap mode
-
-No wrap
-40
-          API_ENDPOINT="/rest/api/2/issue/$ISSUE_KEY"
-41
-          API_RES=$(curl --location --request GET $JIRA_BASE_URL$API_ENDPOINT \
-42
-            -H "Content-Type: application/json" \
-43
-            -H "Authorization: Basic $JIRA_API_TOKEN")
-44
-          PR1=$(echo "$API_RES" | jq -r '.fields.customfield_10034')
-45
-          REPO1=$(echo "$API_RES" | jq -r '.fields.customfield_10035')
-46
-          PR2=$(echo "$API_RES" | jq -r '.fields.customfield_10040')
-47
-          REPO2=$(echo "$API_RES" | jq -r '.fields.customfield_10041')
-48
-          PRS_ARRAY=("$PR1" "$PR2")
-49
-          for value in "${PRS_ARRAY[@]}"; do
-50
-            if [[ "$value" != null ]]; then
-51
-              IS_ALL_PRS_APPROVED="false"
-52
-              echo "Processing value: $value, $PR1,$PR2"
-53
-              if [[ "$value" == "$PR1" ]]; then
-54
-                echo "$REPO1"
-55
-                PR_API_RES=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-56
-                  "https://api.github.com/repos/bhuvismOrg/$REPO1/pulls/$value/reviews" | json_pp)
-57
-              else
-58
-                echo "$REPO2"
-59
-                PR_API_RES=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-60
-                  "https://api.github.com/repos/bhuvismOrg/$REPO2/pulls/$value/reviews" | json_pp)
-61
-              fi
-62
-              if [[ "$PR_API_RES" != '[]' ]]; then
-63
-                json_res=$(echo "$PR_API_RES" | jq -R .)
-64
-                last_ele=$(jq '.[-1]' "$json_res")
-65
-                echo "Response: $last_ele"
-66
-              fi
-67
-            fi
-68
-          done
-69
-          echo "is_all_prs_approved=$IS_ALL_PRS_APPROVED" >> "$GITHUB_ENV"
-70
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
         
-71
-      - name: Update Jira Custom Field - isPRApproved
-72
-        env:
-73
-          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-74
-          JIRA_API_TOKEN: ${{ secrets.JIRA_BASIC_API_TOKEN }}
-75
+      - name: Retrieve Issue Key from Branch Name
+        id: split-branch-name
         run: |
-76
-          ISSUE_KEY="${{ env.issue_key }}"  # Replace with the Jira issue key
-77
-          API_ENDPOINT="/rest/api/2/issue/$ISSUE_KEY"  # Replace with the desired Jira API endpoint
-78
-​
-79
-          REQUEST_BODY='{
-80
-            "fields": {
-81
-              "customfield_10038": "${{ github.event.review.state }}"
-82
-            }
-83
-          }'
-84
-​
-85
-          curl --location --request PUT $JIRA_BASE_URL$API_ENDPOINT \
-86
-            -H "Content-Type: application/json" \
-87
-            -H "Authorization: Basic $JIRA_API_TOKEN" \
-88
-            -d "$REQUEST_BODY"
-89
-        if: ${{ github.event.review.state == 'APPROVED' && env.is_all_prs_approved == 'true' }}
-90
-            
-91
-      - name: Login to Jira
-92
-        uses: atlassian/gajira-login@v3
-93
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          BRANCH_NAME=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}" \
+            | jq -r '.head.ref')
+          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_ENV"
+          
+      - name: Check Substring
+        run: |
+          if echo "${{ env.branch_name }}" | grep -q "dev-branch"; then
+            SECOND_PART=$(echo "${{env.branch_name}}" | cut -d'-' -f4-)
+            echo "issue_key=$SECOND_PART" >> "$GITHUB_ENV"
+          else
+            SECOND_PART=$(echo "${{env.branch_name}}" | cut -d'-' -f2-)
+            echo "issue_key=$SECOND_PART" >> "$GITHUB_ENV"
+          fi
+          
+      - name: Check all PRs in the ticket
         env:
-94
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-95
-          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
-96
-          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-97
-            
-98
-      - name: Transition issue
-99
-        uses: atlassian/gajira-transition@v3
-100
-        with:
-101
-          issue: ${{ env.issue_key }}
-102
-          transition: "PR Approved"
-103
+          JIRA_API_TOKEN: ${{ secrets.JIRA_BASIC_API_TOKEN }}
+        run: |
+          ISSUE_KEY="${{ env.issue_key }}"
+          API_ENDPOINT="/rest/api/2/issue/$ISSUE_KEY"
+          API_RES=$(curl --location --request GET $JIRA_BASE_URL$API_ENDPOINT \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Basic $JIRA_API_TOKEN")
+          PR1=$(echo "$API_RES" | jq -r '.fields.customfield_10034')
+          REPO1=$(echo "$API_RES" | jq -r '.fields.customfield_10035')
+          PR2=$(echo "$API_RES" | jq -r '.fields.customfield_10040')
+          REPO2=$(echo "$API_RES" | jq -r '.fields.customfield_10041')
+          PRS_ARRAY=("$PR1" "$PR2")
+          for value in "${PRS_ARRAY[@]}"; do
+            if [[ "$value" != null ]]; then
+              IS_ALL_PRS_APPROVED="false"
+              echo "Processing value: $value, $PR1,$PR2"
+              if [[ "$value" == "$PR1" ]]; then
+                echo "$REPO1"
+                PR_API_RES=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                  "https://api.github.com/repos/bhuvismOrg/$REPO1/pulls/$value/reviews" | json_pp)
+              else
+                echo "$REPO2"
+                PR_API_RES=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                  "https://api.github.com/repos/bhuvismOrg/$REPO2/pulls/$value/reviews" | json_pp)
+              fi
+              if [[ "$PR_API_RES" != '[]' ]]; then
+                json_res=$(echo "$PR_API_RES" | jq -R .)
+                last_ele=$(jq '.[-1]' "$json_res")
+                echo "Response: $last_ele"
+              fi
+            fi
+          done
+          echo "is_all_prs_approved=$IS_ALL_PRS_APPROVED" >> "$GITHUB_ENV"
+        
+      - name: Update Jira Custom Field - isPRApproved
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_BASIC_API_TOKEN }}
+        run: |
+          ISSUE_KEY="${{ env.issue_key }}"  # Replace with the Jira issue key
+          API_ENDPOINT="/rest/api/2/issue/$ISSUE_KEY"  # Replace with the desired Jira API endpoint
+
+          REQUEST_BODY='{
+            "fields": {
+              "customfield_10038": "${{ github.event.review.state }}"
+            }
+          }'
+
+          curl --location --request PUT $JIRA_BASE_URL$API_ENDPOINT \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Basic $JIRA_API_TOKEN" \
+            -d "$REQUEST_BODY"
         if: ${{ github.event.review.state == 'APPROVED' && env.is_all_prs_approved == 'true' }}
-104
-​
-Use Control + Space to trigger autocomplete in most situations.
-Help Panel navigation
-Marketplace
-Documentation
-Search Marketplace for Actions
-Featured Actions
-
-Cache artifacts like dependencies and build outputs to improve workflow execution time
-
- 3.8k
-
-Setup a Node.js environment by adding problem matchers and optionally downloading and adding it to the PATH
-
- 3k
-
-Set up a specific version of the Java JDK and add the command-line tools to the PATH
-
- 1.2k
-
-Download a build artifact that was previously uploaded in the workflow by the upload-artifact action
-
- 995
-
-Used to build and publish .NET source. Set up a specific version of the .NET and authentication to private NuGet repository
-
- 770
-Featured categories
-Browse all actions on the GitHub Marketplace
-Editing BtempOrg/.github/workflows/on_pr_reviewed.yml at Story-JGI-122 · bhuvismOrg/BtempOrg · GitHub
+            
+      - name: Login to Jira
+        uses: atlassian/gajira-login@v3
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+            
+      - name: Transition issue
+        uses: atlassian/gajira-transition@v3
+        with:
+          issue: ${{ env.issue_key }}
+          transition: "PR Approved"
+        if: ${{ github.event.review.state == 'APPROVED' && env.is_all_prs_approved == 'true' }}
