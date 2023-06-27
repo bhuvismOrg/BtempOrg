@@ -59,9 +59,9 @@ jobs:
               fi
               echo "PR Api Res: $PR_API_RES"
               if [[ ${#PR_API_RES[@]} -eq 0 ]]; then
-                echo "array is empty"
+                echo "array is empty ${#PR_API_RES[@]}"
               else
-                echo "array is not empty"
+                echo "array is not empty ${#PR_API_RES[@]}"
               fi
               PR_State = $PR_State.state
               echo "Before PR State: $PR_State"
