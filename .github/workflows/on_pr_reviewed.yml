@@ -60,7 +60,14 @@ jobs:
                   "https://api.github.com/repos/bhuvismOrg/$REPO2/pulls/$value/reviews" | json_pp)
               fi
               if [[ "$PR_API_RES" != '[]' ]]; then
-                echo "Response: ${#PR_API_RES[@]}"
+                PR_State=$(echo "$PR_API_RES" | jq '.[-1].state')
+                echo "Response: $PR_State"
+                PR_State=$(echo $PR_State | sed 's/"//g')
+                if [[ "$PR_State" == "APPROVED" ]]; then
+                  IS_ALL_PRS_APPROVED="true"
+                else
+                  IS_ALL_PRS_APPROVED="false"
+                fi
               fi
             fi
           done
