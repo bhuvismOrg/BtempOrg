@@ -50,7 +50,7 @@ jobs:
               echo "Processing value: $value"
               PR_State_Response=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
                 "https://api.github.com/repos/${{ github.repository }}/pulls/$value/reviews")
-             if [[ ${#PR_State_Response[@]} -eq 0 ]]; then
+              if [[ ${#PR_State_Response[@]} -eq 0 ]]; then
                 echo "array is empty"
               else
                 echo "array is not empty"
