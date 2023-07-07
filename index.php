@@ -26,6 +26,7 @@
       var subtask1 = 140-dev
       var bug = dev-branch-change-141
       var dependency_served = true
+      var story = 150
     var file = document.getElementById('file-upload').value
     var room = document.getElementById('roomid').value
     if(file && room){
